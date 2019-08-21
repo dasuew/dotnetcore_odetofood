@@ -4,14 +4,6 @@ using System.Collections.Generic;
 
 namespace OdeToFood.Data
 {
-    public interface IRestaurantData
-    {
-        IEnumerable<Restaurant> GetRestaurantsByName(string name);
-        Restaurant GetById(int id);
-        Restaurant Update(Restaurant updatedRestaurant);
-        int Commit();
-    }
-
     public class InMemoryRestaurantData : IRestaurantData
     {
         readonly List<Restaurant> restaurants;
@@ -29,6 +21,14 @@ namespace OdeToFood.Data
         public Restaurant GetById(int id)
         {
             return restaurants.SingleOrDefault(_ => _.Id == id);
+        }
+
+        public Restaurant Add(Restaurant newRestaurant)
+        {
+            restaurants.Add(newRestaurant);
+            newRestaurant.Id = restaurants.Max(_ => _.Id) + 1;
+
+            return newRestaurant;
         }
 
         public Restaurant Update(Restaurant updatedRestaurant)
@@ -54,6 +54,16 @@ namespace OdeToFood.Data
                    where string.IsNullOrEmpty(name) || r.Name.StartsWith(name)
                    orderby r.Name
                    select r;
+        }
+
+        public Restaurant Delete(int id)
+        {
+            var restaurant = restaurants.FirstOrDefault(_ => _.Id == id);
+            if (restaurant != null)
+            {
+                restaurants.Remove(restaurant);
+            }
+            return restaurant;
         }
     }
 }
